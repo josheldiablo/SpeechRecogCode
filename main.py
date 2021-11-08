@@ -4,17 +4,16 @@ from time import sleep
 import speech_recognition as sr
 
 
-def creater():
+def creator():
     os.startfile("C:\\Users\\Josh\\AppData\\Local\\atom\\atom.exe")
     sleep(5)
-    '''
     pg.hotkey('ctrl', 'n')
     sleep(1)
     pg.hotkey('ctrl', 'shift', 's')
     sleep(2)
-    pg.typewrite('pop.py')
+    pg.typewrite('poop.py')
     pg.press('enter')
-    sleep(2)'''
+    sleep(2)
     pg.hotkey('winright', 'right')
 
 
@@ -28,7 +27,7 @@ class CodeBot:
         # listening the speech and store in audio_text variable
         with sr.Microphone() as source:
             print("Talk")
-            audio_text = self.r.listen(source)
+            audio_text = self.r.listen(source, phrase_time_limit=5)
             print("Time over, thanks")
             try:
                 # storing the text in var
@@ -42,9 +41,11 @@ class CodeBot:
         mycode = {"import module": self.createImpo,
                   "function": self.createFun,
                   "class": self.createClass,
-                  "loop": self.createFor,
+                  "for loop": self.createFor,
                   "while loop": self.createWhile,
-                  "print this": self.createPrint,
+                  "print": self.createPrint,
+                  "create list": self.list,
+                  "append list": self.appendList,
                   }
 
         myedit = {
@@ -52,22 +53,28 @@ class CodeBot:
             "duplicate": self.duplicate,
             "delete line": self.delLine,
             "find": self.findReplace,
-            "commentline": self.commentLine,
+            "comment line": self.commentLine,
+            "undo" : self.undo,
         }
 
-        if "code" in self.txt:
-            for i in mycode:
-                if i in self.txt:
-                    mycode[i]()
-
-        elif "edit" in self.txt:
+        self.listener()
+        if "edit" in self.txt:
             self.listener()
             for i in myedit:
                 if i in self.txt:
                     myedit[i]()
 
+        elif "code" in self.txt:
+            self.listener()
+            for i in mycode:
+                if i in self.txt:
+                    mycode[i]()
+
         else:
-            print("Not a valid command")
+            print("choose to code or edit")
+
+        self.checker()
+
 
     # coding commands
 
@@ -75,22 +82,44 @@ class CodeBot:
         # codes whatever you say
         self.listener()
         pg.typewrite(self.txt)
+        
 
     def createImpo(self):
         pg.typewrite("import myModule:")
         pg.press("enter")
 
+    def list(self):
+        print("list name?")
+        self.listener()
+        pg.typewrite(self.txt + " = []")
+        pg.press('enter')
+        
+    def appendList(self):
+        print("list name")
+        self.listener()
+        var = self.txt
+        print("elements to append")
+        self.listener()
+        pg.typewrite(var + ".append(" + self.txt +")")
+
     def createClass(self):
-        pg.typewrite("class MyClass:")
+        print("class name?")
+        self.listener()
+        cl = self.txt
+        cl = cl[0].upper() + cl[1:]
+        pg.typewrite("class " + cl +":")
         pg.press('enter')
 
     def createFun(self):
         print("function name?")
         self.listener()
-        pg.typewrite("def " + self.txt + "():\n\tpass")
+        pg.typewrite("def " + self.txt + "():\npass")
+        pg.press('enter')
+        pg.press('backspace')
+
 
     def createFor(self):
-        print("in range? or in variable?")
+        print("in range or in variable?")
         self.listener()
         if "range" in self.txt:
             print("how much?")
@@ -99,10 +128,10 @@ class CodeBot:
             pg.press('enter')
         elif "variable" in self.txt:
             print("variable name?")
+            self.listener()
             pg.typewrite("for i in " + self.txt + ":")
             pg.press('enter')
-        else:
-            print("Not valid")
+
 
     def createWhile(self):
         pg.typewrite("while ")
@@ -112,10 +141,18 @@ class CodeBot:
         pg.press('enter')
 
     def createPrint(self):
-        print("What to print?")
+        print("variable or text")
         self.listener()
-        pg.typewrite('print("' + self.txt + '")')
-        pg.press('enter')
+        if "variable" in self.txt:
+            print("variable name?")
+            self.listener()
+            pg.typewrite("print(" + self.txt + ")")
+            pg.press('enter')
+        elif "text" in self.txt:
+            print("What to print?")
+            self.listener()
+            pg.typewrite('print("' + self.txt + '")')
+            pg.press('enter')
 
     # edit commands
 
@@ -134,11 +171,6 @@ class CodeBot:
         pg.typewrite(findThis)
 
         pg.press('tab')
-        # to toggle next
-        pg.press('f3')
-        # toggle prev
-        pg.hotkey('shiftleft', 'f3')
-
         self.listener()
         replaceTo = self.txt
         # change it to...
@@ -157,14 +189,13 @@ class CodeBot:
         pg.press('esc')
 
     def commentLine(self):
-        pg.hotkey('ctrl', '/')
+        pg.hotkey('ctrlleft', '/')
+
+    def undo(self):
+        pg.hotkey( 'ctrlleft' ,'z')
+
 
 
 bot = CodeBot()
-creater()
-sleep(7)
-bot.listener()
 bot.checker()
 
-# pg.moveTo(220, 1079, duration = 1)
-print(pg.position())
